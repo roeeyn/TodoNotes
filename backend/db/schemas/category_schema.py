@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 from db.schemas.note_schema import Note
-import datetime
+from datetime import datetime
 
 
 class CategoryBase(BaseModel):

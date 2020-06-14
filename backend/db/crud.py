@@ -1,9 +1,11 @@
 
 from sqlalchemy.orm import Session
-from db.schemas.user_schemas import UserCreate
-from db.schemas.order_schemas import OrderCreate
-from db.models import User, Order
+from db.schemas.user_schema import UserCreate
+from db.schemas.note_schema import NoteCreate
+from db.schemas.category_schema import CategoryCreate
+from db.models import User, Note, Category
 from auth.auth_utils import get_password_hash
+from sqlalchemy import or_
 
 def create_user(db: Session, user: UserCreate):
     user.password = get_password_hash(user.password)
@@ -13,33 +15,40 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     return db_user
 
-def get_user(db: Session, user_id: int):
+def get_user_by_id(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(User).filter(User.email == email).first()
+def get_user_by_email_or_username(db: Session, email: str, username: str = None):
+    return db.query(User).filter(or_(User.email == email, User.username == username)).first()
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(User).offset(skip).limit(limit).all()
-
-def get_users_orders(db: Session, email:str, skip: int = 0, limit: int = 100):
-    return db.query(Order).filter(Order.user_email == email).offset(skip).limit(limit).all()
-
-def create_user_order(db: Session, order:OrderCreate):
-    db_item = Order(**order.dict())
+def create_user_note(db: Session, note:NoteCreate):
+    db_item = Note(**note.dict())
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
     return db_item
 
-def get_order_by_foreign_id(db: Session, order_id: str, platform_id: int):
-    return db.query(Order).filter(Order.order_id == order_id, Order.platform_id == platform_id).first()
+def get_user_notes(db: Session, user_id: int):
+    return (
+        db.query(
+            Note.id,
+            Note.title,
+            Note.description,
+            Note.status, 
+            Note.deadline,
+            Note.category_id,
+            Note.user_id,
+            Note.created_at,
+            Note.updated_at,
+            Category.name.label("category_name")
+        )
+        .join(Category, Category.id == Note.category_id)
+        .filter(Note.user_id == user_id).all())
 
 
-def update_user_order(db: Session, order_id: str, platform_id:int, new_status: int):
-    order = db.query(Order).filter(Order.order_id == order_id, Order.platform_id == platform_id).first()
-    order.status = new_status
-    db.add(order)
+def create_category(db: Session, category: CategoryCreate):
+    db_item = Category(**category.dict())
+    db.add(db_item)
     db.commit()
-    return order
-
+    db.refresh(db_item)
+    return db_item

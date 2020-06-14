@@ -19,8 +19,8 @@ class User(Base):
     username = Column(String, unique=True)
     email = Column(String, unique=True)
     password = Column(String)
-    updated_at = Column(DateTime, DefaultClause(func.now(), for_update=True))
-    created_at = Column(DateTime, DefaultClause(func.now()))
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     notes = relationship("Note", backref="users")
 
 
@@ -37,14 +37,14 @@ class Note(Base):
     deadline = Column(DateTime)
     category_id = Column(Integer, ForeignKey("categories.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
-    updated_at = Column(DateTime, DefaultClause(func.now(), for_update=True))
-    created_at = Column(DateTime, DefaultClause(func.now()))
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
 
 class Category(Base):
     __tablename__ = "categories"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    updated_at = Column(DateTime, DefaultClause(func.now(), for_update=True))
-    created_at = Column(DateTime, DefaultClause(func.now()))
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     notes = relationship("Note", backref="categories")
