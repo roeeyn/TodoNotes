@@ -19,6 +19,7 @@ class User(Base):
     username = Column(String, unique=True)
     email = Column(String, unique=True)
     password = Column(String)
+    role = Column(Integer, default=2)  # 0: general, 1: operativo, 2: admin
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     notes = relationship("Note", backref="users")

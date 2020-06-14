@@ -16,6 +16,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     notes: List[Note] = []
+    role: int
     updated_at: datetime
     created_at: datetime
 
