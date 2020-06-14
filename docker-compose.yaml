@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+    backend:
+        restart: on-failure
+        depends_on: 
+            - db
+        build: ./backend
+        image: todo_notes_backend:production
+        environment: 
+            - DB_USER=root
+            - DB_PASSWORD=root
+            - DB_HOST=db
+            - DB_SCHEMA=TODO_NOTES
+        ports:
+            - "8000:80"
+    db:
+        build: ./database
+        image: todo_notes_database:production
+        restart: on-failure
+        volumes:
+            - todo_db_data:/var/lib/mysql
+        environment: 
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_DATABASE=TODO_NOTES
+volumes: 
+    todo_db_data:
